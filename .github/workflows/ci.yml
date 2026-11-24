@@ -13,8 +13,8 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -49,3 +49,33 @@ jobs:
         env:
           BASE_URL: http://127.0.0.1:8012
         run: python tests/smoke_test.py
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build image
+        run: docker build -t chatbot-starter:ci .
+
+      - name: Run container and check health
+        run: |
+          docker run -d --name cs -p 8010:8000 \
+            -e LLM_BASE_URL=http://127.0.0.1:11434/v1 \
+            chatbot-starter:ci
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8010/api/health -o /tmp/health.json && break
+            sleep 1
+          done
+          cat /tmp/health.json
+          python3 - <<'EOF'
+          import json
+          d = json.load(open("/tmp/health.json"))
+          assert d["ok"] and d["bot"] == "小雀", d
+          assert d["key_configured"] is True, d
+          print("docker ok:", d["bot"])
+          EOF
+
+      - name: Container logs on failure
+        if: failure()
+        run: docker logs cs || true
