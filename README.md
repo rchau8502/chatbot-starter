@@ -1,5 +1,7 @@
 # Chatbot Starter
 
+[![CI](https://github.com/rchau8502/chatbot-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/rchau8502/chatbot-starter/actions/workflows/ci.yml)
+
 > 想要开箱即用、不用自己拼提示词的个人助理版本？看 [小助 · 懒人包](https://github.com/rchau8502/lazy-assistant)。
 
 一个能改成任何场景的对话机器人模板：FastAPI + 任意 OpenAI 兼容大模型 + SSE 流式输出 + 上下文自动压缩 + SQLite 会话存储。前端是一个手机尺寸的聊天页，不用前端框架。
